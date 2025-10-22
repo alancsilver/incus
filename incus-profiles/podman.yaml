@@ -1,0 +1,21 @@
+config:
+  cloud-init.user-data: |
+    #cloud-config
+    packages:
+      - podman
+      - nmap
+      - lsof
+    users:
+      - name: alan
+        gecos: Alan Silver
+        sudo: "ALL=(ALL) NOPASSWD:ALL"
+  security.nesting: "true"
+description: For podman
+devices:
+  kvm:
+    path: /dev/kvm
+    type: unix-char
+name: podman
+used_by:
+- /1.0/instances/ol9-podman
+project: default

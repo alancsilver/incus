@@ -1,0 +1,27 @@
+config:
+  user.user-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gpg
+    runcmd:
+      # Add Kubernetes apt repo
+      - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      - echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /" > /etc/apt/sources.list.d/kubernetes.list
+      - apt-get update
+      - apt-get install -y kubelet kubeadm kubectl
+      - apt-mark hold kubelet kubeadm kubectl
+      # Disable swap (required for kubeadm)
+      - swapoff -a
+      - sed -i '/ swap / s/^/#/' /etc/fstab
+description: Profile for Ubuntu 24.04 LXC with Kubernetes installed
+devices: {}
+name: kubernetes
+used_by:
+- /1.0/instances/2410-k8
+- /1.0/instances/2410-k8-node
+project: default

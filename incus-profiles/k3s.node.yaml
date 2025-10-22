@@ -1,0 +1,31 @@
+config:
+  cloud-init.user-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - curl
+      - iptables
+      - iproute2
+      - socat
+      - conntrack
+      - ebtables
+    runcmd:
+      # Disable swap (required for Kubernetes)
+      - swapoff -a
+      - sed -i '/ swap / s/^/#/' /etc/fstab
+  linux.kernel_modules: overlay,nf_nat,br_netfilter
+  raw.lxc: |
+    lxc.apparmor.profile=unconfined
+    lxc.cap.drop=
+    lxc.cgroup.devices.allow=a
+    lxc.mount.auto=proc:rw sys:rw
+  security.nesting: "true"
+  security.syscalls.intercept.mknod: "true"
+  security.syscalls.intercept.setxattr: "true"
+description: Profile for running a k3s node inside an Incus container
+devices: {}
+name: k3s.node
+used_by:
+- /1.0/instances/2410-k3s-node
+project: default

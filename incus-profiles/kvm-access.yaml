@@ -1,0 +1,10 @@
+config:
+  security.privileged: "true"
+description: Allow /dev/kvm access for nested virtualization
+devices:
+  kvm:
+    path: /dev/kvm
+    type: unix-char
+name: kvm-access
+used_by: []
+project: default

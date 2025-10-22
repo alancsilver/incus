@@ -1,0 +1,30 @@
+config: {}
+description: Default Incus profile
+devices:
+  eth0:
+    name: eth0
+    network: incusbr0
+    type: nic
+  root:
+    path: /
+    pool: initial_pool
+    type: disk
+name: default
+used_by:
+- /1.0/instances/2410-vm
+- /1.0/instances/ol8
+- /1.0/instances/ol8pack
+- /1.0/instances/ol9-k8s
+- /1.0/instances/docker
+- /1.0/instances/2410-podman
+- /1.0/instances/ol9-podman
+- /1.0/instances/my-k8s
+- /1.0/instances/2410-k3s
+- /1.0/instances/2410-k3s-node
+- /1.0/instances/2410-k8
+- /1.0/instances/2410-k8-node
+- /1.0/instances/2410-containerd
+- /1.0/instances/k-ctrlplane
+- /1.0/instances/k-node2
+- /1.0/instances/k-node1
+project: default

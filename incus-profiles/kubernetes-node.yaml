@@ -1,0 +1,48 @@
+config:
+  limits.cpu: "1"
+  limits.memory: 1GB
+  user.user-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gpg
+    runcmd:
+      # Add Kubernetes repo
+      - mkdir -p /etc/apt/keyrings
+      - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      - echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /" > /etc/apt/sources.list.d/kubernetes.list
+      - apt-get update
+      - apt-get install -y kubelet kubeadm kubectl containerd
+      - apt-mark hold kubelet kubeadm kubectl
+      # Required: disable swap
+      - swapoff -a
+      - sed -i '/ swap / s/^/#/' /etc/fstab
+      # Configure containerd
+      - mkdir -p /etc/containerd
+      - containerd config default | tee /etc/containerd/config.toml
+      - sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+      - systemctl restart containerd
+      # enable IP packet forwarding on the node, which allows the Linux kernel
+      # to route network traffic between interfaces.
+      # This is essential in Kubernetes for pod-to-pod communication
+      # across nodes and for routing traffic through the control plane
+      # or CNI-managed networks
+      - sysctl -w net.ipv4.ip_forward=1
+      # uncomment the line in /etc/sysctl.conf enabling IP forwarding after reboot
+      - sed -i '/^#net\\.ipv4\\.ip_forward=1/s/^#//' /etc/sysctl.conf
+      # Apply the changes to sysctl.conf
+      # Any changes made to sysctl configuration files take immediate effect without requiring a reboot
+      - sysctl -p
+      # Apply Calico CNI plugin
+      # - kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/calico.yaml
+description: Profile for Ubuntu 24.04 LXC with Kubernetes cluster node
+devices: {}
+name: kubernetes-node
+used_by:
+- /1.0/instances/k-node2
+- /1.0/instances/k-node1
+project: default

@@ -1,0 +1,12 @@
+config:
+  cloud-init.user-data: |
+    #cloud-config
+    users:
+      - name: alan
+        gecos: Alan Silver
+        shell: /bin/bash
+description: List of local users
+devices: {}
+name: users
+used_by: []
+project: default

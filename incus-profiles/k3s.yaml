@@ -1,0 +1,38 @@
+config:
+  linux.kernel_modules: overlay,nf_nat,br_netfilter
+  raw.lxc: |
+    lxc.apparmor.profile=unconfined
+    lxc.cap.drop=
+    lxc.cgroup.devices.allow=a
+    lxc.mount.auto=proc:rw sys:rw
+  security.nesting: "true"
+  security.syscalls.intercept.mknod: "true"
+  security.syscalls.intercept.setxattr: "true"
+  user.user-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - curl
+    runcmd:
+      # Disable swap (k8s requirement)
+      - swapoff -a
+      - sed -i '/ swap / s/^/#/' /etc/fstab
+
+      # Install k3s (single-node)
+      - curl -sfL https://get.k3s.io | sh -
+
+      # Set up kubectl for root
+      - mkdir -p /root/.kube
+      - cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
+      - chown root:root /root/.kube/config
+      - sed -i 's/127.0.0.1/0.0.0.0/' /root/.kube/config
+description: Ubuntu 24.04 LXC with k3s single-node Kubernetes
+devices:
+  kvm:
+    path: /dev/kvm
+    type: unix-char
+name: k3s
+used_by:
+- /1.0/instances/2410-k3s
+project: default

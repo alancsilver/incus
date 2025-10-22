@@ -1,0 +1,17 @@
+config:
+  cloud-init.user-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    package_reboot_if_required: true
+    packages:
+      - nmap
+      - lsof
+      - net-tools
+      - tree
+description: basic packages
+devices: {}
+name: cloud-dev
+used_by:
+- /1.0/instances/ol8
+project: default

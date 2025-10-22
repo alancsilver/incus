@@ -1,0 +1,4 @@
+  cloud-init.user-data: |
+    #cloud-config
+    runcmd:
+      - [touch, /tmp/kilroy_was_here]
