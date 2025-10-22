@@ -33,6 +33,5 @@ devices:
     path: /dev/kvm
     type: unix-char
 name: k3s
-used_by:
-- /1.0/instances/2410-k3s
+used_by: []
 project: default

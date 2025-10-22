@@ -42,7 +42,5 @@ config:
 description: Profile for Ubuntu 24.04 LXC with Kubernetes cluster node
 devices: {}
 name: kubernetes-node
-used_by:
-- /1.0/instances/k-node2
-- /1.0/instances/k-node1
+used_by: []
 project: default

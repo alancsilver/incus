@@ -21,7 +21,5 @@ config:
 description: Profile for Ubuntu 24.04 LXC with Kubernetes installed
 devices: {}
 name: kubernetes
-used_by:
-- /1.0/instances/2410-k8
-- /1.0/instances/2410-k8-node
+used_by: []
 project: default

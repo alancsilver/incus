@@ -16,6 +16,5 @@ devices:
     path: /dev/kvm
     type: unix-char
 name: podman
-used_by:
-- /1.0/instances/ol9-podman
+used_by: []
 project: default

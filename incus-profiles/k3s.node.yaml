@@ -26,6 +26,5 @@ config:
 description: Profile for running a k3s node inside an Incus container
 devices: {}
 name: k3s.node
-used_by:
-- /1.0/instances/2410-k3s-node
+used_by: []
 project: default

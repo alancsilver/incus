@@ -12,6 +12,5 @@ config:
 description: basic packages
 devices: {}
 name: cloud-dev
-used_by:
-- /1.0/instances/ol8
+used_by: []
 project: default

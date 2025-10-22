@@ -50,7 +50,5 @@ config:
 description: Profile for Ubuntu 24.04 LXC with Kubernetes cluster control plane
 devices: {}
 name: kubernetes-controlplane
-used_by:
-- /1.0/instances/my-k8s
-- /1.0/instances/k-ctrlplane
+used_by: []
 project: default

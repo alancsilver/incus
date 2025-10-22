@@ -1,0 +1,43 @@
+config:
+  limits.cpu: "2"
+  limits.memory: 4GiB
+  linux.kernel_modules: overlay,nf_nat,br_netfilter
+  raw.lxc: |
+    lxc.apparmor.profile=unconfined
+    lxc.cap.drop=
+    lxc.cgroup.devices.allow=a
+    lxc.mount.auto=proc:rw sys:rw
+  security.nesting: "true"
+  security.syscalls.intercept.mknod: "true"
+  security.syscalls.intercept.setxattr: "true"
+  user.user-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - curl
+      - nmap
+      - lsof
+      - containerd
+      - apt-transport-https
+      - ca-certificates
+      - gpg
+    runcmd:
+    # Disable swap (k8s requirement)
+      - swapoff -a
+      - sed -i '/ swap / s/^/#/' /etc/fstab
+    # create /etc/containerd directory for containerd configuration
+      - mkdir -p /etc/containerd
+    # Generate the default containerd configuration
+    # Change the pause container to version 3.10 (pause container holds the linux ns for Kubernetes namespaces)
+    # Set `SystemdCgroup` to true to use same cgroup drive as kubelet
+      - containerd config default  | sed 's/SystemdCgroup = false/SystemdCgroup = true/'  | sed 's|sandbox_image = ".*"|sandbox_image = "registry.k8s.io/pause:3.10"|'  | sudo tee /etc/containerd/config.toml > /dev/null
+    #
+    # Restart containerd to apply the configuration changes
+      - systemctl restart containerd
+description: Ubuntu 24.04 LXC with containerd
+devices: {}
+name: k3s-server
+used_by:
+- /1.0/instances/2410-containerd-3s-server
+project: default

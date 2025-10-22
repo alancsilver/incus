@@ -1,0 +1,51 @@
+config:
+  limits.cpu: "1"
+  limits.memory: 512MiB
+  linux.kernel_modules: overlay,nf_nat,br_netfilter
+  raw.lxc: |
+    lxc.apparmor.profile=unconfined
+    lxc.cap.drop=
+    lxc.cgroup.devices.allow=a
+    lxc.mount.auto=proc:rw sys:rw
+  security.nesting: "true"
+  security.syscalls.intercept.mknod: "true"
+  security.syscalls.intercept.setxattr: "true"
+  user.user-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - curl
+      - nmap
+      - lsof
+      - containerd
+      - apt-transport-https
+      - ca-certificates
+      - gpg
+    runcmd:
+    # Disable swap (k8s requirement)
+      - swapoff -a
+      - sed -i '/ swap / s/^/#/' /etc/fstab
+    # create /etc/containerd directory for containerd configuration
+      - mkdir -p /etc/containerd
+    # Generate the default containerd configuration
+    # Change the pause container to version 3.10 (pause container holds the linux ns for Kubernetes namespaces)
+    # Set `SystemdCgroup` to true to use same cgroup drive as kubelet
+      - containerd config default  | sed 's/SystemdCgroup = false/SystemdCgroup = true/'  | sed 's|sandbox_image = ".*"|sandbox_image = "registry.k8s.io/pause:3.10"|'  | sudo tee /etc/containerd/config.toml > /dev/null
+    #
+    # Restart containerd to apply the configuration changes
+      - systemctl restart containerd
+    #  Download the public signing key for the Kubernetes package repositories. The same signing key is used for all repositories so you can disregard the version in the URL:
+      - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      - chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg # allow unprivileged APT programs to read this keyring
+    #
+    # This overwrites any existing configuration in /etc/apt/sources.list.d/kubernetes.list
+      - echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+      - chmod 644 /etc/apt/sources.list.d/kubernetes.list   # helps tools such as command-not-found to work correctly
+      - apt-get update
+      - apt-get install -y kubectl
+description: Ubuntu 24.04 LXC with containerd and k8s client
+devices: {}
+name: k8s-client
+used_by: []
+project: default
